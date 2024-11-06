@@ -31,7 +31,7 @@ export function TaskCard({ task }: TaskCardProps) {
       <CardHeader>
         <div className="flex justify-between items-start">
           <CardTitle className="text-xl">{task.title}</CardTitle>
-          <Badge variant="outline" className={priorityColors[task.priority]}>
+          <Badge variant="outline" className={priorityColors[task.priority as keyof typeof priorityColors]}>
             {task.priority}
           </Badge>
         </div>
@@ -45,7 +45,7 @@ export function TaskCard({ task }: TaskCardProps) {
       </CardHeader>
       <CardContent>
         <p className="text-gray-600 mb-4">{task.description}</p>
-        <Badge className={statusColors[task.status]}>{task.status}</Badge>
+        <Badge className={statusColors[task.status as keyof typeof statusColors]}>{task.status}</Badge>
       </CardContent>
     </Card>
   );
