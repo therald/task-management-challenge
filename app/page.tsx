@@ -1,13 +1,20 @@
 import { TaskList } from '@/components/task-list';
 import { CreateTaskButton } from '@/components/create-task-button';
-import { prisma } from '@/lib/db';
+
+async function getTasks() {
+  const res = await fetch('http://localhost:3000/api/tasks', {
+    cache: 'no-store'
+  });
+
+  if (!res.ok) {
+    throw new Error('Failed to fetch tasks');
+  }
+
+  return res.json();
+}
 
 export default async function Home() {
-  const tasks = await prisma.task.findMany({
-    orderBy: {
-      dueDate: 'asc',
-    },
-  });
+  const tasks = await getTasks();
 
   return (
     <main className="container mx-auto p-4">
