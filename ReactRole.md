@@ -16,7 +16,6 @@ Add the ability to categorize tasks with labels/tags. This should include:
 
 - Write clean, maintainable code
 - Follow SOLID principles where applicable
-- Include tests for your new features
 - Use TypeScript effectively
 - Make meaningful git commits
 - Document your changes
@@ -24,6 +23,7 @@ Add the ability to categorize tasks with labels/tags. This should include:
 ## Bonus Points
 
 - Add additional features that you think would be valuable
+- Include tests for your new features
 - Improve the UI/UX
 - Add comprehensive test coverage
 - Implement performance optimizations
