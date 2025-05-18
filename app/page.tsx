@@ -2,6 +2,8 @@ import { TaskList } from '@/components/task-list';
 import { CreateTaskButton } from '@/components/create-task-button';
 import { CreateLabelButton } from '@/components/create-label-button';
 import { LabelList } from '@/components/label-list';
+import { LabelSection } from '@/components/label-section';
+import { TaskSection } from '@/components/task-section';
 
 async function getTasks() {
   const res = await fetch('http://localhost:3000/api/tasks', {
@@ -39,14 +41,8 @@ export default async function Home() {
         <CreateLabelButton />
       </div>
       <div className='flex flex-col gap-12'>
-        <div className='flex flex-col gap-4'>
-          <h2 className="text-3xl font-bold">Tasks</h2>
-          <TaskList initialTasks={tasks} labels={labels} />
-        </div>
-        <div className='flex flex-col gap-4'>
-          <h2 className="text-3xl font-bold">Labels</h2>
-          <LabelList initialLabels={labels} />
-        </div>
+        <TaskSection labels={labels} tasks={tasks} />
+        <LabelSection labels={labels} />
       </div>
     </main>
   );
