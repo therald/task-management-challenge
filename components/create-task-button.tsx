@@ -13,6 +13,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from '@/components/ui/dialog';
+import { DropdownMenu, DropdownMenuCheckboxItem, DropdownMenuContent, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import {
@@ -22,6 +23,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { Label as TLabel } from '@/lib/db'
 import { PlusCircle } from 'lucide-react';
 
 const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const;
@@ -33,13 +35,18 @@ const taskSchema = z.object({
   priority: z.enum(PRIORITIES),
   status: z.enum(STATUSES),
   dueDate: z.string().optional(),
+  labels: z.array(z.string()).optional()
 });
 
 type TaskFormData = z.infer<typeof taskSchema>;
 
-export function CreateTaskButton() {
+interface ICreateTaskButton {
+  labels: TLabel[]
+}
+
+export function CreateTaskButton({ labels }: ICreateTaskButton) {
   const [open, setOpen] = useState(false);
-  const { register, handleSubmit, reset, formState: { errors } } = useForm<TaskFormData>({
+  const { register, handleSubmit, reset, getValues, setValue, formState: { errors } } = useForm<TaskFormData>({
     resolver: zodResolver(taskSchema),
     defaultValues: {
       priority: 'MEDIUM',
@@ -129,6 +136,40 @@ export function CreateTaskButton() {
           <div>
             <Label htmlFor="dueDate">Due Date</Label>
             <Input type="date" id="dueDate" {...register('dueDate')} />
+          </div>
+          <div>
+            {/* <Label htmlFor="labels">Labels</Label> */}
+            <DropdownMenu>
+              <DropdownMenuTrigger>
+                Labels
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {
+                  labels.map(label => (
+                    <DropdownMenuCheckboxItem 
+                      key={label.id} 
+                      id={label.id}
+                      checked={getValues('labels')?.includes(label.id)}
+                      onCheckedChange={() => {
+                        const currentLabels = getValues('labels') ?? []
+
+                        const foundIndex = currentLabels.indexOf(label.id)
+                        if (foundIndex >= 0) {
+                          currentLabels.splice(foundIndex, 1)
+                        }
+                        else {
+                          currentLabels.push(label.id)
+                        }
+
+                        setValue('labels', currentLabels, { shouldDirty: true, shouldValidate: true, shouldTouch: true })
+                      }}
+                    >
+                      {label.title}
+                    </DropdownMenuCheckboxItem>
+                  ))
+                }
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
           <Button type="submit" className="w-full">
             Create Task
