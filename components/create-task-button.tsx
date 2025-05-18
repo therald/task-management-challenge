@@ -48,6 +48,14 @@ export function CreateTaskButton() {
   });
 
   const onSubmit = async (data: TaskFormData) => {
+    if (data.dueDate) {
+      const date = new Date(data.dueDate)
+
+      date.setTime(date.getTime() + (date.getTimezoneOffset() * 60 * 1000))
+      
+      data.dueDate = date.toUTCString()
+    }
+
     try {
       const response = await fetch('/api/tasks', {
         method: 'POST',
