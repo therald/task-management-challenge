@@ -2,14 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import { TaskCard } from './task-card';
-import { Task } from '@/lib/db';
+import { Label, Task } from '@/lib/db';
 
 interface TaskListProps {
-  initialTasks: Task[];
+  initialTasks: (Omit<Task, 'labels'> & { labels: Label[] })[];
 }
 
 export function TaskList({ initialTasks }: TaskListProps) {
-  const [tasks, setTasks] = useState<Task[]>(initialTasks);
+  const [tasks, setTasks] = useState<TaskListProps['initialTasks']>(initialTasks);
 
   useEffect(() => {
     setTasks(initialTasks);
