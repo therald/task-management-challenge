@@ -7,7 +7,7 @@ import {
   CardHeader,
   CardTitle,
 } from '@/components/ui/card';
-import { Task } from '@/lib/db';
+import { Label, Task } from '@/lib/db';
 
 const priorityColors = {
   LOW: 'bg-blue-100 text-blue-800',
@@ -22,10 +22,11 @@ const statusColors = {
 } as const;
 
 interface TaskCardProps {
-  task: Task;
+  task: Task
+  labels: Label[]
 }
 
-export function TaskCard({ task }: TaskCardProps) {
+export function TaskCard({ task, labels }: TaskCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -46,6 +47,15 @@ export function TaskCard({ task }: TaskCardProps) {
       <CardContent>
         <p className="text-gray-600 mb-4">{task.description}</p>
         <Badge className={statusColors[task.status as keyof typeof statusColors]}>{task.status}</Badge>
+
+        <div className='mt-2'>
+          {
+            task.labels.length
+              ? (
+                `Labels: ${labels.filter(label => (task.labels ?? []).map(taskLabel => taskLabel.labelId).includes(label.id)).map(({title}) => title).join(', ')}`
+              ) : null
+            }
+        </div>
       </CardContent>
     </Card>
   );

@@ -36,6 +36,9 @@ export async function GET() {
     const tasks = await prisma.task.findMany({
       orderBy: {
         dueDate: 'asc'
+      },
+      include: {
+        labels: true
       }
     })
     return NextResponse.json(tasks)

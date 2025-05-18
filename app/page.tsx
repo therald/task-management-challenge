@@ -41,7 +41,7 @@ export default async function Home() {
       <div className='flex flex-col gap-12'>
         <div className='flex flex-col gap-4'>
           <h2 className="text-3xl font-bold">Tasks</h2>
-          <TaskList initialTasks={tasks} />
+          <TaskList initialTasks={tasks} labels={labels} />
         </div>
         <div className='flex flex-col gap-4'>
           <h2 className="text-3xl font-bold">Labels</h2>
