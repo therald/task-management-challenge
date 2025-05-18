@@ -8,4 +8,4 @@ export const prisma = globalForPrisma.prisma ?? new PrismaClient();
 
 if (process.env.NODE_ENV !== 'production') globalForPrisma.prisma = prisma;
 
-export type { Task } from '@prisma/client';
+export type { Label, Task } from '@prisma/client';
