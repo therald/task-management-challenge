@@ -22,11 +22,10 @@ const statusColors = {
 } as const;
 
 interface TaskCardProps {
-  task: Task
-  labels: Label[]
+  task: Omit<Task, 'labels'> & { labels: Label[]}
 }
 
-export function TaskCard({ task, labels }: TaskCardProps) {
+export function TaskCard({ task }: TaskCardProps) {
   return (
     <Card>
       <CardHeader>
@@ -52,7 +51,7 @@ export function TaskCard({ task, labels }: TaskCardProps) {
           {
             task.labels.length
               ? (
-                `Labels: ${labels.filter(label => (task.labels ?? []).map(taskLabel => taskLabel.labelId).includes(label.id)).map(({title}) => title).join(', ')}`
+                `Labels: ${task.labels.map(label => label.title).join(', ')}`
               ) : null
             }
         </div>
