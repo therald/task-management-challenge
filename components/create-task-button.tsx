@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { PlusCircle } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -13,12 +14,6 @@ import {
   DialogTitle,
   DialogTrigger
 } from '@/components/ui/dialog'
-import {
-  DropdownMenu,
-  DropdownMenuCheckboxItem,
-  DropdownMenuContent,
-  DropdownMenuTrigger
-} from '@/components/ui/dropdown-menu'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -28,29 +23,17 @@ import {
   SelectTrigger,
   SelectValue
 } from '@/components/ui/select'
-import { Label as TLabel } from '@/lib/db'
-import { PlusCircle } from 'lucide-react'
+import { useCreateTaskMutation } from '@/services/queryService'
+import {
+  createTaskSchema,
+  TCreateTaskRequest
+} from '@/types/api/request/CreateTaskRequest'
+import { ETaskPriority } from '@/types/api/TaskPriority'
+import { LabelDropdown } from './label-dropdown'
 
-const PRIORITIES = ['LOW', 'MEDIUM', 'HIGH'] as const
-const STATUSES = ['TODO', 'IN_PROGRESS', 'DONE'] as const
-
-const taskSchema = z.object({
-  title: z.string().min(1, 'Title is required'),
-  description: z.string().optional(),
-  priority: z.enum(PRIORITIES),
-  status: z.enum(STATUSES),
-  dueDate: z.string().optional(),
-  labels: z.array(z.string()).optional()
-})
-
-type TaskFormData = z.infer<typeof taskSchema>
-
-interface ICreateTaskButton {
-  labels: TLabel[]
-}
-
-export function CreateTaskButton({ labels }: ICreateTaskButton) {
+export function CreateTaskButton() {
   const [open, setOpen] = useState(false)
+
   const {
     register,
     handleSubmit,
@@ -58,15 +41,34 @@ export function CreateTaskButton({ labels }: ICreateTaskButton) {
     getValues,
     setValue,
     formState: { errors }
-  } = useForm<TaskFormData>({
-    resolver: zodResolver(taskSchema),
+  } = useForm<TCreateTaskRequest>({
+    resolver: zodResolver(createTaskSchema),
     defaultValues: {
       priority: 'MEDIUM',
       status: 'TODO'
     }
   })
 
-  const onSubmit = async (data: TaskFormData) => {
+  const { mutate: createTask } = useCreateTaskMutation({
+    onSuccess: () => {
+      reset()
+      setOpen(false)
+    },
+    onError: error => {
+      console.log(error)
+      console.error('Error creating task:', new Error('Failed to create task'))
+    }
+  })
+
+  const handleLabelsChange = (newLabels: TCreateTaskRequest['labels']) => {
+    setValue('labels', newLabels, {
+      shouldDirty: true,
+      shouldValidate: true,
+      shouldTouch: true
+    })
+  }
+
+  const onSubmit = async (data: TCreateTaskRequest) => {
     if (data.dueDate) {
       const date = new Date(data.dueDate)
 
@@ -75,25 +77,7 @@ export function CreateTaskButton({ labels }: ICreateTaskButton) {
       data.dueDate = date.toUTCString()
     }
 
-    try {
-      const response = await fetch('/api/tasks', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create task')
-      }
-
-      reset()
-      setOpen(false)
-      window.location.reload()
-    } catch (error) {
-      console.error('Error creating task:', error)
-    }
+    createTask(data)
   }
 
   return (
@@ -149,7 +133,7 @@ export function CreateTaskButton({ labels }: ICreateTaskButton) {
                 <SelectValue placeholder='Select priority' />
               </SelectTrigger>
               <SelectContent>
-                {PRIORITIES.map(priority => (
+                {Object.values(ETaskPriority).map(priority => (
                   <SelectItem
                     key={priority}
                     value={priority}
@@ -169,8 +153,19 @@ export function CreateTaskButton({ labels }: ICreateTaskButton) {
             />
           </div>
           <div>
-            <DropdownMenu>
-              <DropdownMenuTrigger>Labels</DropdownMenuTrigger>
+            <LabelDropdown
+              activeFilters={getValues('labels') ?? []}
+              onChange={handleLabelsChange}
+            />
+            {/* <DropdownMenu>
+              <DropdownMenuTrigger
+                className={cn(
+                  buttonVariants({ variant: 'default', size: 'default' })
+                )}
+              >
+                <PlusCircle className='mr-2 h-4 w-4' />
+                Add Labels
+              </DropdownMenuTrigger>
               <DropdownMenuContent>
                 {labels.map(label => (
                   <DropdownMenuCheckboxItem
@@ -198,7 +193,7 @@ export function CreateTaskButton({ labels }: ICreateTaskButton) {
                   </DropdownMenuCheckboxItem>
                 ))}
               </DropdownMenuContent>
-            </DropdownMenu>
+            </DropdownMenu> */}
           </div>
           <Button
             type='submit'

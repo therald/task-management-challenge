@@ -1,5 +1,6 @@
 // app/api/tasks/route.ts
 import { NextResponse } from 'next/server'
+
 import { prisma } from '@/lib/db'
 
 export async function POST(request: Request) {
@@ -14,7 +15,7 @@ export async function POST(request: Request) {
         status: data.status,
         dueDate: data.dueDate ? new Date(data.dueDate) : null,
         labels: {
-          create: data.labels.map((label: string) => ({
+          create: data.labels?.map((label: string) => ({
             labelId: label
           }))
         }

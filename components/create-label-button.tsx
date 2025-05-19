@@ -1,9 +1,10 @@
 'use client'
 
 import { useState } from 'react'
-import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
-import { z } from 'zod'
+import { PlusCircle } from 'lucide-react'
+import { useForm } from 'react-hook-form'
+
 import { Button } from '@/components/ui/button'
 import {
   Dialog,
@@ -15,13 +16,11 @@ import {
 } from '@/components/ui/dialog'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
-import { PlusCircle } from 'lucide-react'
-
-const labelSchema = z.object({
-  title: z.string().min(1, 'Title is required')
-})
-
-type LabelFormData = z.infer<typeof labelSchema>
+import {
+  createLabelSchema,
+  TCreateLabelRequest
+} from '@/types/api/request/CreateLabelRequest'
+import { useCreateLabelMutation } from '@/services/queryService'
 
 export function CreateLabelButton() {
   const [open, setOpen] = useState(false)
@@ -30,31 +29,25 @@ export function CreateLabelButton() {
     handleSubmit,
     reset,
     formState: { errors }
-  } = useForm<LabelFormData>({
-    resolver: zodResolver(labelSchema)
+  } = useForm<TCreateLabelRequest>({
+    resolver: zodResolver(createLabelSchema)
   })
 
-  const onSubmit = async (data: LabelFormData) => {
-    try {
-      const response = await fetch('/api/labels', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-
-      if (!response.ok) {
-        throw new Error('Failed to create label')
-      }
-
+  const { mutate: createLabel } = useCreateLabelMutation({
+    onSuccess: () => {
       reset()
       setOpen(false)
-      window.location.reload()
-    } catch (error) {
-      console.error('Error creating label:', error)
+    },
+    onError: error => {
+      console.log(error)
+      console.error(
+        'Error creating label:',
+        new Error('Failed to create label')
+      )
     }
-  }
+  })
+
+  const onSubmit = async (data: TCreateLabelRequest) => createLabel(data)
 
   return (
     <Dialog

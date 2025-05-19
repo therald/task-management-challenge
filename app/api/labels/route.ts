@@ -1,5 +1,6 @@
 // app/api/labels/route.ts
 import { NextResponse } from 'next/server'
+
 import { prisma } from '@/lib/db'
 
 export async function POST(request: Request) {
@@ -29,6 +30,7 @@ export async function GET() {
         title: 'asc'
       }
     })
+
     return NextResponse.json(labels)
   } catch (error) {
     return NextResponse.json(
